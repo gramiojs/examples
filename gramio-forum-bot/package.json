@@ -8,6 +8,7 @@
     },
     "devDependencies": {
         "@biomejs/biome": "1.5.3",
+        "@gramio/types": "^7.0.17",
         "@types/bun": "latest"
     },
     "peerDependencies": {
@@ -15,7 +16,7 @@
     },
     "dependencies": {
         "elysia": "^0.8.16",
-        "gramio": "^0.0.4",
+        "gramio": "^0.0.7",
         "octokit": "^3.1.2"
     }
 }

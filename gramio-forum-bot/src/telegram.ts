@@ -2,7 +2,7 @@ import { Bot } from "gramio";
 
 const bot = new Bot(process.env.BOT_TOKEN!);
 
-export function sendToGithubTopic(text: string) {
+export function sendToGithubTopic(text: string | { toString(): string }) {
 	return bot.api.sendMessage({
 		chat_id: Number(process.env.CHAT_ID!),
 		message_thread_id: Number(process.env.TOPIC_ID!),
