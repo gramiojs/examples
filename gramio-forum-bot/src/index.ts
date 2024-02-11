@@ -11,7 +11,7 @@ github.webhooks.on("push", ({ payload: { repository, commits, compare } }) => {
 		
 
 		${commits.map((commit) => `- ${commit.message}`).join("\n")}
-		
+
 
 		${link("Compare changes", compare)}`,
 	);
@@ -25,7 +25,7 @@ github.webhooks.on(
 				`${repository.full_name}@${release.tag_name.replace("v", "")}`,
 				repository.url,
 			)}
-			
+
 
 			${release.body}`,
 		);
