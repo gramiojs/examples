@@ -12,11 +12,11 @@
         "@types/bun": "latest"
     },
     "peerDependencies": {
-        "typescript": "^5.0.0"
+        "typescript": "^5.3.3"
     },
     "dependencies": {
         "elysia": "^0.8.16",
-        "gramio": "^0.0.7",
+        "gramio": "^0.0.8",
         "octokit": "^3.1.2"
     }
 }
