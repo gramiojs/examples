@@ -9,8 +9,10 @@ github.webhooks.on("push", ({ payload: { repository, commits, compare } }) => {
 	sendToGithubTopic(
 		format`${link(repository.full_name, repository.url)}
 		
+
 		${commits.map((commit) => `- ${commit.message}`).join("\n")}
-			
+		
+
 		${link("Compare changes", compare)}`,
 	);
 });
@@ -24,6 +26,7 @@ github.webhooks.on(
 				repository.url,
 			)}
 			
+
 			${release.body}`,
 		);
 	},
