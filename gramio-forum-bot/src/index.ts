@@ -23,7 +23,7 @@ github.webhooks.on(
 		sendToGithubTopic(
 			format`🎉 ${link(
 				`${repository.full_name}@${release.tag_name.replace("v", "")}`,
-				repository.url,
+				repository.html_url,
 			)}
 
 
