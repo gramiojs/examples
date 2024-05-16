@@ -28,14 +28,22 @@ github.webhooks.on(
 github.webhooks.on(
 	"release.created",
 	({ payload: { release, repository } }) => {
+		const [_, changelog] =
+			release.body?.match(/\*\*Full Changelog\*\*: (.*)/) || [];
+
 		sendToGithubTopic(
 			format`🎉 ${link(
 				`${repository.full_name}@${release.tag_name.replace("v", "")}`,
-				repository.html_url,
+				release.html_url,
 			)}
 
 
-			${release.body}`,
+			${
+				release.body?.replace(/\*\*Full Changelog\*\*:(.*)/, "") ||
+				"No body found."
+			}
+			
+			${link("Compare release changes", changelog)}`,
 		);
 	},
 );
