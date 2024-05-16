@@ -7,16 +7,16 @@
         "lint:fix": "bun lint --apply"
     },
     "devDependencies": {
-        "@biomejs/biome": "1.7.2",
-        "@gramio/types": "^7.2.2",
+        "@biomejs/biome": "1.7.3",
+        "@gramio/types": "^7.3.4",
         "@types/bun": "latest"
     },
     "peerDependencies": {
         "typescript": "^5.4.5"
     },
     "dependencies": {
-        "elysia": "^1.0.16",
-        "gramio": "^0.0.30",
-        "octokit": "^3.2.1"
+        "elysia": "^1.0.20",
+        "gramio": "^0.0.35",
+        "octokit": "^4.0.2"
     }
 }
