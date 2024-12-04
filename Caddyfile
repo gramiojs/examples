@@ -1,3 +1,9 @@
-gramio.animaru.app {
-	reverse_proxy http://localhost:3673
+github.gramio.dev {
+	route /webhook {
+		reverse_proxy http://localhost:3673
+	}
+
+	route / {
+		redir https://github.com/gramiojs/gramio
+	}
 }

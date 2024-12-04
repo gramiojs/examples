@@ -3,7 +3,7 @@ import { github } from "./github";
 
 new Elysia()
 	.post(
-		"/",
+		"/webhook",
 		async ({ headers, body }) => {
 			await github.webhooks.verifyAndReceive({
 				id: headers["x-github-delivery"],
