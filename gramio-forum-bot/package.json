@@ -4,19 +4,20 @@
     "type": "module",
     "scripts": {
         "lint": "bunx @biomejs/biome check ./src",
-        "lint:fix": "bun lint --apply"
+        "lint:fix": "bun lint --apply",
+        "pm2:start": "pm2 start ecosystem.config.cjs"
     },
     "devDependencies": {
-        "@biomejs/biome": "1.7.3",
-        "@gramio/types": "^7.3.4",
-        "@types/bun": "latest"
+        "@biomejs/biome": "1.9.4",
+        "@gramio/types": "^9.0.2",
+        "@types/bun": "^1.2.10"
     },
     "peerDependencies": {
-        "typescript": "^5.4.5"
+        "typescript": "^5.8.3"
     },
     "dependencies": {
-        "elysia": "^1.0.20",
-        "gramio": "^0.0.35",
-        "octokit": "^4.0.2"
+        "elysia": "^1.2.25",
+        "gramio": "^0.4.0",
+        "octokit": "^4.1.3"
     }
 }

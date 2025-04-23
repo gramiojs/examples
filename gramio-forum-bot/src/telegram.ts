@@ -2,8 +2,15 @@ import { Bot } from "gramio";
 
 const bot = new Bot(process.env.BOT_TOKEN!);
 
-export function sendToGithubTopic(text: string | { toString(): string }) {
-	return bot.api.sendMessage({
+console.time("init");
+await bot.init();
+console.timeEnd("init");
+
+export async function sendToGithubTopic(
+	text: string | { toString(): string },
+	pinMessage = false,
+) {
+	const message = await bot.api.sendMessage({
 		chat_id: Number(process.env.CHAT_ID!),
 		message_thread_id: Number(process.env.TOPIC_ID!),
 		text: text,
@@ -11,4 +18,11 @@ export function sendToGithubTopic(text: string | { toString(): string }) {
 			is_disabled: true,
 		},
 	});
+
+	if (pinMessage) {
+		await bot.api.pinChatMessage({
+			chat_id: Number(process.env.CHAT_ID!),
+			message_id: message.message_id,
+		});
+	}
 }
