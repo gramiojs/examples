@@ -43,7 +43,7 @@ github.webhooks.on(
 				"No body found."
 			}
 			
-			${link("Compare release changes", changelog)}`,
+			${link("Compare release changes", changelog)}`, true
 		);
 	},
 );

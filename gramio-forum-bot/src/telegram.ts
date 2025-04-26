@@ -19,6 +19,8 @@ export async function sendToGithubTopic(
 		},
 	});
 
+	console.log(message);
+
 	if (pinMessage) {
 		await bot.api.pinChatMessage({
 			chat_id: Number(process.env.CHAT_ID!),
