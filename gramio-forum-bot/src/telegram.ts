@@ -29,3 +29,15 @@ export async function sendToGithubTopic(
 		});
 	}
 }
+
+export async function sendToChannel(text: string | { toString(): string }) {
+	const message = await bot.api.sendMessage({
+		chat_id: Number(process.env.CHANNEL_ID!),
+		text: text,
+		link_preview_options: {
+			is_disabled: true,
+		},
+	});
+
+	console.log(message);
+}
