@@ -25,6 +25,7 @@ export async function sendToGithubTopic(
 		await bot.api.pinChatMessage({
 			chat_id: Number(process.env.CHAT_ID!),
 			message_id: message.message_id,
+			disable_notification: true,
 		});
 	}
 }
