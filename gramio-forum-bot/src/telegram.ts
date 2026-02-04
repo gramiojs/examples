@@ -2,10 +2,6 @@ import { Bot } from "gramio";
 
 const bot = new Bot(process.env.BOT_TOKEN!);
 
-console.time("init");
-await bot.init();
-console.timeEnd("init");
-
 export async function sendToGithubTopic(
 	text: string | { toString(): string },
 	pinMessage = false,

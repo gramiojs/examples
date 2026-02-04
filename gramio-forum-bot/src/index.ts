@@ -9,7 +9,8 @@ github.webhooks.on(
 		if (
 			repository.visibility !== "public" ||
 			!commits.length ||
-			pusher.name === "renovate[bot]"
+			pusher.name === "renovate[bot]" ||
+			commits.every((commit) => commit.message.includes("chore(deps)"))
 		)
 			return;
 
@@ -69,6 +70,9 @@ github.webhooks.on("issues.closed", ({ payload: { issue, repository } }) => {
 });
 
 github.webhooks.on("pull_request.opened", ({ payload: { pull_request, repository } }) => {
+	if(pull_request.title.includes("chore(deps)"))
+		return console.log("chore(deps) pull request", pull_request);
+
 	sendToGithubTopic(
 		format`🔄 ${link(repository.full_name, repository.html_url)} - ${link(`#${pull_request.number} ${pull_request.title}`, pull_request.html_url)}
 		
