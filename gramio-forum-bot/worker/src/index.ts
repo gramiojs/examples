@@ -21,10 +21,10 @@ export default {
 			return new Response("Missing required headers", { status: 400 });
 		}
 
-		const payload = await request.text();
+		const bodyBuffer = await request.text();
 
 		const isValid = await verifyGitHubWebhook(
-			payload,
+			bodyBuffer,
 			signature,
 			env.GITHUB_WEBHOOK_SECRET,
 		);
@@ -34,12 +34,14 @@ export default {
 		}
 
 		try {
-			const parsedPayload = JSON.parse(payload);
+			const parsedPayload = await new Response(bodyBuffer).json();
 			await handleWebhook(env, event, parsedPayload);
 			return new Response("OK", { status: 200 });
 		} catch (error) {
-			console.error("Error handling webhook:", error);
-			return new Response("Internal server error", { status: 500 });
+			console.error("Error handling webhook:", error, {
+				payloadLength: bodyBuffer.length,
+			});
+			return new Response(`Internal server error ${error instanceof Error ? error.stack : JSON.stringify(error)}`, { status: 500 });
 		}
 	},
 };
