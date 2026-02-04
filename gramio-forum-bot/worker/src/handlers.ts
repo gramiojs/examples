@@ -6,7 +6,8 @@ type WebhookEvent =
 	| { event: "push"; payload: PushPayload }
 	| { event: "release"; payload: ReleasePayload }
 	| { event: "issues"; payload: IssuesPayload }
-	| { event: "pull_request"; payload: PullRequestPayload };
+	| { event: "pull_request"; payload: PullRequestPayload }
+	| { event: "issue_comment"; payload: IssueCommentPayload };
 
 interface Repository {
 	full_name: string;
@@ -31,6 +32,16 @@ interface ReleasePayload {
 		html_url: string;
 		body?: string;
 	};
+	repository: Repository;
+}
+
+interface IssueCommentPayload {
+	action: string;
+	comment: {
+		body?: string;
+		html_url: string;
+	};
+	issue: IssuesPayload["issue"];
 	repository: Repository;
 }
 
@@ -74,6 +85,9 @@ export async function handleWebhook(
 		case "pull_request":
 			await handlePullRequest(env, payload as PullRequestPayload);
 			break;
+		case "issue_comment":
+			await handleIssueComment(env, payload as IssueCommentPayload);
+			break;
 		default:
 			console.log(`Unhandled event: ${event}`);
 	}
@@ -96,6 +110,25 @@ async function handlePush(env: Env, payload: PushPayload): Promise<void> {
 ${commits.map((commit) => `- ${commit.message}`).join("\n")}
 
 ${link("Compare changes", compare)}`;
+
+	await sendToGithubTopic(env, text);
+}
+
+async function handleIssueComment(
+	env: Env,
+	payload: IssueCommentPayload,
+): Promise<void> {
+	const { action, comment, issue, repository } = payload;
+	if (action !== "created") return;
+
+	const text = `💬 ${link(
+		repository.full_name,
+		repository.html_url,
+	)} - ${link(`#${issue.number} ${issue.title}`, issue.html_url)}
+
+${expandableBlockquote(comment.body || "No comment body.")}
+
+${link("View comment", comment.html_url)}`;
 
 	await sendToGithubTopic(env, text);
 }
