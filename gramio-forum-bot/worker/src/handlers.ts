@@ -7,7 +7,12 @@ type WebhookEvent =
 	| { event: "release"; payload: ReleasePayload }
 	| { event: "issues"; payload: IssuesPayload }
 	| { event: "pull_request"; payload: PullRequestPayload }
-	| { event: "issue_comment"; payload: IssueCommentPayload };
+	| { event: "issue_comment"; payload: IssueCommentPayload }
+	| { event: "pull_request_review"; payload: PullRequestReviewPayload }
+	| {
+			event: "pull_request_review_comment";
+			payload: PullRequestReviewCommentPayload;
+	  };
 
 interface Repository {
 	full_name: string;
@@ -67,6 +72,37 @@ interface PullRequestPayload {
 	repository: Repository;
 }
 
+interface PullRequestReviewPayload {
+	action: string;
+	review: {
+		state: string;
+		body?: string;
+		html_url: string;
+		user: { login: string };
+	};
+	pull_request: {
+		number: number;
+		title: string;
+		html_url: string;
+	};
+	repository: Repository;
+}
+
+interface PullRequestReviewCommentPayload {
+	action: string;
+	comment: {
+		body?: string;
+		html_url: string;
+		user: { login: string };
+	};
+	pull_request: {
+		number: number;
+		title: string;
+		html_url: string;
+	};
+	repository: Repository;
+}
+
 export async function handleWebhook(
 	env: Env,
 	event: string,
@@ -87,6 +123,15 @@ export async function handleWebhook(
 			break;
 		case "issue_comment":
 			await handleIssueComment(env, payload as IssueCommentPayload);
+			break;
+		case "pull_request_review":
+			await handlePullRequestReview(env, payload as PullRequestReviewPayload);
+			break;
+		case "pull_request_review_comment":
+			await handlePullRequestReviewComment(
+				env,
+				payload as PullRequestReviewCommentPayload,
+			);
 			break;
 		default:
 			console.log(`Unhandled event: ${event}`);
@@ -188,6 +233,56 @@ async function handlePullRequest(
 	const text = `🔄 ${link(repository.full_name, repository.html_url)} - ${link(`#${pull_request.number} ${pull_request.title}`, pull_request.html_url)}
 
 ${expandableBlockquote(pull_request.body || "No body found.")}`;
+
+	await sendToGithubTopic(env, text);
+}
+
+async function handlePullRequestReview(
+	env: Env,
+	payload: PullRequestReviewPayload,
+): Promise<void> {
+	const { action, review, pull_request, repository } = payload;
+
+	if (action !== "submitted") return;
+
+	const stateEmoji = {
+		approved: "✅",
+		changes_requested: "🔴",
+		commented: "💬",
+	}[review.state.toLowerCase()] || "📝";
+
+	const stateText = {
+		approved: "approved",
+		changes_requested: "requested changes",
+		commented: "commented",
+	}[review.state.toLowerCase()] || review.state;
+
+	const text = `${stateEmoji} ${link(repository.full_name, repository.html_url)} - ${link(`#${pull_request.number} ${pull_request.title}`, pull_request.html_url)}
+
+**${review.user.login}** ${stateText}
+
+${expandableBlockquote(review.body || "No review body.")}
+
+${link("View review", review.html_url)}`;
+
+	await sendToGithubTopic(env, text);
+}
+
+async function handlePullRequestReviewComment(
+	env: Env,
+	payload: PullRequestReviewCommentPayload,
+): Promise<void> {
+	const { action, comment, pull_request, repository } = payload;
+
+	if (action !== "created") return;
+
+	const text = `💬 ${link(repository.full_name, repository.html_url)} - ${link(`#${pull_request.number} ${pull_request.title}`, pull_request.html_url)}
+
+**${comment.user.login}** commented on review
+
+${expandableBlockquote(comment.body || "No comment body.")}
+
+${link("View comment", comment.html_url)}`;
 
 	await sendToGithubTopic(env, text);
 }
