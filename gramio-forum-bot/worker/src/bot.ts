@@ -14,7 +14,7 @@ export async function handleTelegramUpdate(
 	env: Env,
 	update: TelegramUpdate,
 ): Promise<void> {
-	if (!update.message) return;
+	if (!update.message || update.message.chat.type !== "private") return;
 
 	const chatId = update.message.chat.id;
 	const telegram = new Telegram(env.BOT_TOKEN);
