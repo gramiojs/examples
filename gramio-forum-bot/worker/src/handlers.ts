@@ -1,5 +1,5 @@
+import { format, bold, link, expandableBlockquote, join } from "@gramio/format";
 import type { Env } from "./env";
-import { expandableBlockquote, link } from "./format";
 import { sendToChannel, sendToGithubTopic } from "./telegram";
 
 type WebhookEvent =
@@ -151,13 +151,13 @@ async function handlePush(env: Env, payload: PushPayload): Promise<void> {
 		return;
 	}
 
-	const text = `${link(repository.full_name, repository.html_url)}
+	const message = format`${link(repository.full_name, repository.html_url)}
 
-${commits.map((commit) => `- ${commit.message}`).join("\n")}
+${join(commits, (commit) => format`- ${commit.message}`, "\n")}
 
 ${link("Compare changes", compare)}`;
 
-	await sendToGithubTopic(env, text);
+	await sendToGithubTopic(env, message);
 }
 
 async function handleIssueComment(
@@ -167,16 +167,13 @@ async function handleIssueComment(
 	const { action, comment, issue, repository } = payload;
 	if (action !== "created") return;
 
-	const text = `💬 ${link(
-		repository.full_name,
-		repository.html_url,
-	)} - ${link(`#${issue.number} ${issue.title}`, issue.html_url)}
+	const message = format`💬 ${link(repository.full_name, repository.html_url)} - ${link(`#${issue.number} ${issue.title}`, issue.html_url)}
 
 ${expandableBlockquote(comment.body || "No comment body.")}
 
 ${link("View comment", comment.html_url)}`;
 
-	await sendToGithubTopic(env, text);
+	await sendToGithubTopic(env, message);
 }
 
 async function handleRelease(env: Env, payload: ReleasePayload): Promise<void> {
@@ -186,7 +183,7 @@ async function handleRelease(env: Env, payload: ReleasePayload): Promise<void> {
 	const [_, changelog] =
 		release.body?.match(/\*\*Full Changelog\*\*: (.*)/) || [];
 
-	const text = `🎉 ${link(
+	const message = format`🎉 ${link(
 		`${repository.full_name}@${release.tag_name.replace("v", "")}`,
 		release.html_url,
 	)}
@@ -198,8 +195,8 @@ ${expandableBlockquote(
 ${link("Compare release changes", changelog || release.html_url)}`;
 
 	await Promise.all([
-		sendToGithubTopic(env, text, true),
-		sendToChannel(env, text),
+		sendToGithubTopic(env, message, true),
+		sendToChannel(env, message),
 	]);
 }
 
@@ -207,17 +204,17 @@ async function handleIssues(env: Env, payload: IssuesPayload): Promise<void> {
 	const { action, issue, repository } = payload;
 
 	if (action === "opened") {
-		const text = `⁉️ ${link(repository.full_name, repository.html_url)} - ${link(`#${issue.number} ${issue.title}`, issue.html_url)}
+		const message = format`⁉️ ${link(repository.full_name, repository.html_url)} - ${link(`#${issue.number} ${issue.title}`, issue.html_url)}
 
 ${expandableBlockquote(issue.body || "No body found.")}`;
 
-		await sendToGithubTopic(env, text);
+		await sendToGithubTopic(env, message);
 	} else if (action === "closed") {
-		const text = `✅ ${link(repository.full_name, repository.html_url)} - ${link(`#${issue.number} ${issue.title}`, issue.html_url)}
+		const message = format`✅ ${link(repository.full_name, repository.html_url)} - ${link(`#${issue.number} ${issue.title}`, issue.html_url)}
 
 ${expandableBlockquote(issue.body || "No body found.")}`;
 
-		await sendToGithubTopic(env, text);
+		await sendToGithubTopic(env, message);
 	}
 }
 
@@ -233,11 +230,11 @@ async function handlePullRequest(
 		return;
 	}
 
-	const text = `🔄 ${link(repository.full_name, repository.html_url)} - ${link(`#${pull_request.number} ${pull_request.title}`, pull_request.html_url)}
+	const message = format`🔄 ${link(repository.full_name, repository.html_url)} - ${link(`#${pull_request.number} ${pull_request.title}`, pull_request.html_url)}
 
 ${expandableBlockquote(pull_request.body || "No body found.")}`;
 
-	await sendToGithubTopic(env, text);
+	await sendToGithubTopic(env, message);
 }
 
 async function handlePullRequestReview(
@@ -260,15 +257,15 @@ async function handlePullRequestReview(
 		commented: "commented",
 	}[review.state.toLowerCase()] || review.state;
 
-	const text = `${stateEmoji} ${link(repository.full_name, repository.html_url)} - ${link(`#${pull_request.number} ${pull_request.title}`, pull_request.html_url)}
+	const message = format`${stateEmoji} ${link(repository.full_name, repository.html_url)} - ${link(`#${pull_request.number} ${pull_request.title}`, pull_request.html_url)}
 
-**${review.user.login}** ${stateText}
+${bold(review.user.login)} ${stateText}
 
 ${expandableBlockquote(review.body || "No review body.")}
 
 ${link("View review", review.html_url)}`;
 
-	await sendToGithubTopic(env, text);
+	await sendToGithubTopic(env, message);
 }
 
 async function handlePullRequestReviewComment(
@@ -279,13 +276,13 @@ async function handlePullRequestReviewComment(
 
 	if (action !== "created") return;
 
-	const text = `💬 ${link(repository.full_name, repository.html_url)} - ${link(`#${pull_request.number} ${pull_request.title}`, pull_request.html_url)}
+	const message = format`💬 ${link(repository.full_name, repository.html_url)} - ${link(`#${pull_request.number} ${pull_request.title}`, pull_request.html_url)}
 
-**${comment.user.login}** commented on review
+${bold(comment.user.login)} commented on review
 
 ${expandableBlockquote(comment.body || "No comment body.")}
 
 ${link("View comment", comment.html_url)}`;
 
-	await sendToGithubTopic(env, text);
+	await sendToGithubTopic(env, message);
 }
