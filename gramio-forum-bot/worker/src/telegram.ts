@@ -1,5 +1,6 @@
 import type { Env } from "./env";
 import { truncate } from "./format";
+import { Telegram } from "wrappergram";
 
 const BASE_URL = "https://api.telegram.org/bot";
 

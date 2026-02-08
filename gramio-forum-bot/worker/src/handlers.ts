@@ -32,6 +32,7 @@ interface PushPayload {
 }
 
 interface ReleasePayload {
+	action: string;
 	release: {
 		tag_name: string;
 		html_url: string;
@@ -179,7 +180,9 @@ ${link("View comment", comment.html_url)}`;
 }
 
 async function handleRelease(env: Env, payload: ReleasePayload): Promise<void> {
-	const { release, repository } = payload;
+	const { action, release, repository } = payload;
+
+	if (action !== "published") return;
 	const [_, changelog] =
 		release.body?.match(/\*\*Full Changelog\*\*: (.*)/) || [];
 
