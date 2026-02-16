@@ -18,34 +18,50 @@ export async function sendToGithubTopic(
 ) {
 	const telegram = getTelegram(env);
 
-	const response = await telegram.api.sendMessage({
-		chat_id: Number(env.CHAT_ID),
-		message_thread_id: Number(env.TOPIC_ID),
-		text: message.text,
-		entities: message.entities,
-		link_preview_options: { is_disabled: true },
-	});
-
-	console.log(response);
-
-	if (pinMessage && response.ok && response.result.message_id) {
-		await telegram.api.pinChatMessage({
+	try {
+		const response = await telegram.api.sendMessage({
 			chat_id: Number(env.CHAT_ID),
-			message_id: response.result.message_id,
-			disable_notification: true,
+			message_thread_id: Number(env.TOPIC_ID),
+			text: message.text,
+			entities: message.entities,
+			link_preview_options: { is_disabled: true },
 		});
+
+		console.log("sendToGithubTopic response:", response);
+
+		if (pinMessage && response.ok && response.result.message_id) {
+			await telegram.api.pinChatMessage({
+				chat_id: Number(env.CHAT_ID),
+				message_id: response.result.message_id,
+				disable_notification: true,
+			});
+		}
+	} catch (error) {
+		console.error("Failed to send message to GitHub topic:", error, {
+			messageLength: message.text.length,
+			textPreview: message.text.slice(0, 200),
+		});
+		throw error;
 	}
 }
 
 export async function sendToChannel(env: Env, message: FormattedMessage) {
 	const telegram = getTelegram(env);
 
-	const response = await telegram.api.sendMessage({
-		chat_id: Number(env.CHANNEL_ID),
-		text: message.text,
-		entities: message.entities,
-		link_preview_options: { is_disabled: true },
-	});
+	try {
+		const response = await telegram.api.sendMessage({
+			chat_id: Number(env.CHANNEL_ID),
+			text: message.text,
+			entities: message.entities,
+			link_preview_options: { is_disabled: true },
+		});
 
-	console.log(response);
+		console.log("sendToChannel response:", response);
+	} catch (error) {
+		console.error("Failed to send message to channel:", error, {
+			messageLength: message.text.length,
+			textPreview: message.text.slice(0, 200),
+		});
+		throw error;
+	}
 }

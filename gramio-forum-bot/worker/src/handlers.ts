@@ -151,9 +151,24 @@ async function handlePush(env: Env, payload: PushPayload): Promise<void> {
 		return;
 	}
 
+	const MAX_COMMITS = 15;
+	const MAX_COMMIT_LENGTH = 200;
+	const displayCommits = commits.slice(0, MAX_COMMITS);
+	const hasMore = commits.length > MAX_COMMITS;
+
+	const commitsText = join(
+		displayCommits,
+		(commit) => {
+			// Truncate long commit messages
+			const message = commit.message.split("\n")[0]; // First line only
+			return format`- ${message.length > MAX_COMMIT_LENGTH ? `${message.slice(0, MAX_COMMIT_LENGTH)}…` : message}`;
+		},
+		"\n"
+	);
+
 	const message = format`${link(repository.full_name, repository.html_url)}
 
-${join(commits, (commit) => format`- ${commit.message}`, "\n")}
+${commitsText}${hasMore ? format`\n\n... and ${commits.length - MAX_COMMITS} more commit${commits.length - MAX_COMMITS > 1 ? "s" : ""}` : ""}
 
 ${link("Compare changes", compare)}`;
 
